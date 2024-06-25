@@ -6,6 +6,7 @@ const Book = require('../models/bookModel');
 const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 
 Router.use(express.urlencoded({ extended: false }));
 
@@ -87,34 +88,35 @@ Router.post('/uploadBook', authenticateUser , upload.fields([{ name: 'file', max
 // Route to download a book PDF
 Router.get('/books/:id/download', authenticateUser, async (req, res) => {
     try {
-      const book = await Book.findById(req.params.id);
+        const book = await Book.findById(req.params.id);
+    
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
   
-      if (!book) {
-        return res.status(404).json({ message: 'Book not found' });
-      }
-  
-      const filePath = 'https://samitibackend.onrender.com/' + book.fileUrl.replace(/\\/g, '/');
-      // console.log({filePath});
-      const stat = fs.statSync(filePath);
-      // console.log({stat});
+        // console.log(`Book downloaded: ${book.name} by ${book.author}`);
+        const fileUrl = 'https://samitibackend.onrender.com/' + book.fileUrl.replace(/\\/g, '/');
+        console.log({ fileUrl });
 
-      const encodedFilename = encodeURIComponent(book.name) + '.pdf';
-  
-      // Set headers to prompt a file download
-      res.setHeader('Content-Length', stat.size);
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="${encodedFilename}"`);
-  
-      // Create a read stream for the file and pipe it to the response
-      const fileStream = fs.createReadStream(filePath);
-      fileStream.on('error', (error) => {
-        console.error('Error reading file:', error);
-        res.status(500).json({ message: 'Internal server error' });
-      });
-  
-      fileStream.pipe(res);
-  
-    //   console.log(`Book downloaded: ${book.name} by ${book.author}`);
+        https.get(fileUrl, (response) => {
+            if (response.statusCode !== 200) {
+                return res.status(response.statusCode).json({ message: `Failed to fetch file: ${response.statusMessage}` });
+            }
+
+            // Sanitize and encode the filename
+            const encodedFilename = encodeURIComponent(book.name) + '.pdf';
+
+            // Set headers to prompt a file download
+            res.setHeader('Content-Length', response.headers['content-length']);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${encodedFilename}"`);
+
+            // Pipe the response stream to the client
+            response.pipe(res);
+        }).on('error', (err) => {
+            console.error('Error fetching file:', err);
+            res.status(500).json({ message: 'Internal server error' });
+        });
     } catch (err) {
       console.error('Error downloading book:', err);
       res.status(500).json({ message: 'Internal server error' });
