@@ -9,7 +9,11 @@ const trishoolRouter = require('./Routers/trishoolRouter');
 const galleryRouter = require('./Routers/galleryRouter');
 const teamRouter = require('./Routers/teamRouter');
 
-app.use(cors());
+app.use(cors({
+    origin: 'https://hindisamitinith.netlify.app', 
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, 
+}));
 app.use(express.json());
 dotenv.config();
 
