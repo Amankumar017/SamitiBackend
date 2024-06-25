@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const authenticateUser = require('../middleware/authenticateUser');
 const fetch = require('node-fetch');
-
+const https = require('https');
 Router.use(express.urlencoded({ extended: false }));
 
 
@@ -80,6 +80,7 @@ Router.post('/uploadTrishool',authenticateUser,upload.single('TrishoolFile'), as
     }
 });
 
+
 // Router.get('/trishools/:id/download', authenticateUser, async (req, res) => {
 //     try {
 //       const trishool = await Trishool.findById(req.params.id);
@@ -115,34 +116,70 @@ Router.post('/uploadTrishool',authenticateUser,upload.single('TrishoolFile'), as
 //     }
 // });
 
+// Router.get('/trishools/:id/download', authenticateUser, async (req, res) => {
+//   try {
+//     const trishool = await Trishool.findById(req.params.id);
+
+//     if (!trishool) {
+//       return res.status(404).json({ message: 'Book not found' });
+//     }
+
+//     const fileUrl = 'https://samitibackend.onrender.com/' + trishool.fileUrl.replace(/\\/g, '/');
+//     console.log({ fileUrl });
+
+//     const response = await fetch(fileUrl);
+
+//     if (!response.ok) {
+//       throw new Error(`Failed to fetch file from URL: ${response.statusText}`);
+//     }
+
+//     // Set headers to prompt a file download
+//     res.setHeader('Content-Length', response.headers.get('content-length'));
+//     res.setHeader('Content-Type', 'application/pdf');
+//     res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(trishool.title)}.pdf"`);
+
+//     // Pipe the response stream to the client
+//     response.body.pipe(res);
+//   } catch (err) {
+//     console.error('Error downloading book:', err);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// });
+
 Router.get('/trishools/:id/download', authenticateUser, async (req, res) => {
-  try {
-    const trishool = await Trishool.findById(req.params.id);
+    try {
+        const trishool = await Trishool.findById(req.params.id);
 
-    if (!trishool) {
-      return res.status(404).json({ message: 'Book not found' });
+        if (!trishool) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+
+        const fileUrl = 'https://samitibackend.onrender.com/' + trishool.fileUrl.replace(/\\/g, '/');
+        console.log({ fileUrl });
+
+        https.get(fileUrl, (response) => {
+            if (response.statusCode !== 200) {
+                return res.status(response.statusCode).json({ message: `Failed to fetch file: ${response.statusMessage}` });
+            }
+
+            // Sanitize and encode the filename
+            const encodedFilename = encodeURIComponent(trishool.title) + '.pdf';
+
+            // Set headers to prompt a file download
+            res.setHeader('Content-Length', response.headers['content-length']);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${encodedFilename}"`);
+
+            // Pipe the response stream to the client
+            response.pipe(res);
+        }).on('error', (err) => {
+            console.error('Error fetching file:', err);
+            res.status(500).json({ message: 'Internal server error' });
+        });
+    } catch (err) {
+        console.error('Error downloading book:', err);
+        res.status(500).json({ message: 'Internal server error' });
     }
-
-    const fileUrl = 'https://samitibackend.onrender.com/' + trishool.fileUrl.replace(/\\/g, '/');
-    console.log({ fileUrl });
-
-    const response = await fetch(fileUrl);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch file from URL: ${response.statusText}`);
-    }
-
-    // Set headers to prompt a file download
-    res.setHeader('Content-Length', response.headers.get('content-length'));
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(trishool.title)}.pdf"`);
-
-    // Pipe the response stream to the client
-    response.body.pipe(res);
-  } catch (err) {
-    console.error('Error downloading book:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
 });
 
 
