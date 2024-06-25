@@ -6,7 +6,6 @@ const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 const authenticateUser = require('../middleware/authenticateUser');
-const fetch = require('node-fetch');
 const https = require('https');
 Router.use(express.urlencoded({ extended: false }));
 
