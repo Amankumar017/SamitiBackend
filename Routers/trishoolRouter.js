@@ -3,7 +3,6 @@ const Router = express.Router();
 const multer = require('multer');
 const Trishool = require('../models/trishoolModel');
 const sharp = require('sharp');
-const fs = require('fs');
 const path = require('path');
 const authenticateUser = require('../middleware/authenticateUser');
 const https = require('https');
@@ -78,72 +77,6 @@ Router.post('/uploadTrishool',authenticateUser,upload.single('TrishoolFile'), as
         res.status(500).json({ message: 'Internal server error' }); // Server error response
     }
 });
-
-
-// Router.get('/trishools/:id/download', authenticateUser, async (req, res) => {
-//     try {
-//       const trishool = await Trishool.findById(req.params.id);
-  
-//       if (!trishool) {
-//         return res.status(404).json({ message: 'Book not found' });
-//       }
-  
-//       const filePath = 'https://samitibackend.onrender.com/' + trishool.fileUrl.replace(/\\/g, '/');
-//     //   console.log({filePath});
-//       const stat = fs.statSync(filePath);
-//     //   console.log({stat});
-  
-//       //Sanitize and encode the filename
-//       const encodedFilename = encodeURIComponent(trishool.title) + '.pdf';
-
-//       // Set headers to prompt a file download
-//       res.setHeader('Content-Length', stat.size);
-//       res.setHeader('Content-Type', 'application/pdf');
-//       res.setHeader('Content-Disposition', `attachment; filename="${encodedFilename}"`);
-  
-//       // Create a read stream for the file and pipe it to the response
-//       const fileStream = fs.createReadStream(filePath);
-//       fileStream.on('error', (error) => {
-//         console.error('Error reading file:', error);
-//         res.status(500).json({ message: 'Internal server error' });
-//       });
-  
-//       fileStream.pipe(res);
-//     } catch (err) {
-//       console.error('Error downloading book:', err);
-//       res.status(500).json({ message: 'Internal server error' });
-//     }
-// });
-
-// Router.get('/trishools/:id/download', authenticateUser, async (req, res) => {
-//   try {
-//     const trishool = await Trishool.findById(req.params.id);
-
-//     if (!trishool) {
-//       return res.status(404).json({ message: 'Book not found' });
-//     }
-
-//     const fileUrl = 'https://samitibackend.onrender.com/' + trishool.fileUrl.replace(/\\/g, '/');
-//     console.log({ fileUrl });
-
-//     const response = await fetch(fileUrl);
-
-//     if (!response.ok) {
-//       throw new Error(`Failed to fetch file from URL: ${response.statusText}`);
-//     }
-
-//     // Set headers to prompt a file download
-//     res.setHeader('Content-Length', response.headers.get('content-length'));
-//     res.setHeader('Content-Type', 'application/pdf');
-//     res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(trishool.title)}.pdf"`);
-
-//     // Pipe the response stream to the client
-//     response.body.pipe(res);
-//   } catch (err) {
-//     console.error('Error downloading book:', err);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// });
 
 Router.get('/trishools/:id/download', authenticateUser, async (req, res) => {
     try {

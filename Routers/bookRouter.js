@@ -4,7 +4,6 @@ const multer = require('multer');
 const authenticateUser = require('../middleware/authenticateUser');
 const Book = require('../models/bookModel');
 const sharp = require('sharp');
-const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
