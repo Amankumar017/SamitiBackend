@@ -11,6 +11,7 @@ const teamRouter = require('./Routers/teamRouter');
 
 app.use(cors({
     origin: 'https://hindisamitinith.netlify.app', 
+    // origin: 'http://localhost:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, 
 }));

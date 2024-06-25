@@ -87,7 +87,7 @@ Router.get('/trishools/:id/download', authenticateUser, async (req, res) => {
         return res.status(404).json({ message: 'Book not found' });
       }
   
-      const filePath = 'https://samitibackend.onrender.com' + trishool.fileUrl;
+      const filePath = 'https://samitibackend.onrender.com/' + trishool.fileUrl.replace(/\\/g, '/');
     //   console.log({filePath});
       const stat = fs.statSync(filePath);
     //   console.log({stat});
