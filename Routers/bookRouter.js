@@ -93,7 +93,7 @@ Router.get('/books/:id/download', authenticateUser, async (req, res) => {
         return res.status(404).json({ message: 'Book not found' });
       }
   
-      const filePath = book.fileUrl;
+      const filePath = 'https://samitibackend.onrender.com' + book.fileUrl;
       // console.log({filePath});
       const stat = fs.statSync(filePath);
       // console.log({stat});
