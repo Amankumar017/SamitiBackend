@@ -8,7 +8,6 @@ const bookRouter = require('./Routers/bookRouter');
 const trishoolRouter = require('./Routers/trishoolRouter');
 const galleryRouter = require('./Routers/galleryRouter');
 const teamRouter = require('./Routers/teamRouter');
-const path = require('path');
 
 app.use(cors({
     origin: 'https://hindisamitinith.netlify.app', 
@@ -40,8 +39,7 @@ app.use(galleryRouter);
 app.use(teamRouter);
 
 // Serve static files from the "uploads" directory
-// app.use('/uploads', express.static('uploads'));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static('uploads'));
 app.use('/bookUploads',express.static('bookUploads'));
 app.use('/coverUploads',express.static('coverUploads'));
 app.use('/trishoolUploads',express.static('trishoolUploads'));
