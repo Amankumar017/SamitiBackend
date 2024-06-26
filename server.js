@@ -15,17 +15,18 @@ app.use(cors({
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, 
 }));
+
 app.use(express.json());
 dotenv.config();
 
 mongoose.connect(process.env.URL)
 .then(()=>{
-    // console.log("Database connection successful");
+    console.log("Database connection successful");
     app.listen(process.env.PORT || 8000,(err)=>{
         if(err){
             console.log(err);
         }
-        // console.log(`server is listening at ${process.env.PORT}`);
+        console.log(`server is listening at ${process.env.PORT}`);
     });
 })
 .catch((error)=>{
