@@ -39,7 +39,8 @@ app.use(galleryRouter);
 app.use(teamRouter);
 
 // Serve static files from the "uploads" directory
-app.use('/uploads', express.static('uploads'));
+// app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/bookUploads',express.static('bookUploads'));
 app.use('/coverUploads',express.static('coverUploads'));
 app.use('/trishoolUploads',express.static('trishoolUploads'));
