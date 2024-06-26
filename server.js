@@ -8,6 +8,7 @@ const bookRouter = require('./Routers/bookRouter');
 const trishoolRouter = require('./Routers/trishoolRouter');
 const galleryRouter = require('./Routers/galleryRouter');
 const teamRouter = require('./Routers/teamRouter');
+const path = require('path');
 
 app.use(cors({
     origin: 'https://hindisamitinith.netlify.app', 
