@@ -6,7 +6,7 @@ const sharp = require('sharp');
 const path = require('path');
 const authenticateUser = require('../middleware/authenticateUser');
 const { uploadOnCloudinary } = require('../cloudinary');
-const https = require('https');
+const https = require('http');
 Router.use(express.urlencoded({ extended: false }));
 
 
@@ -59,7 +59,8 @@ Router.post('/uploadTrishool',authenticateUser,upload.single('TrishoolFile'), as
             return res.status(400).json({ message: 'Trishool file is required' });
         }
 
-        const {url:fileUrl} = await uploadOnCloudinary(file.path); // Uploaded file path
+        const {secure_url:fileUrl} = await uploadOnCloudinary(file.path); // Uploaded file path
+        console.log({fileUrl});
         if (!title || !content) {
             // Validate title and content
             return res.status(400).json({ message: 'Title and content are required fields' });
