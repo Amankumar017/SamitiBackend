@@ -68,7 +68,7 @@ Router.post('/uploadBook', authenticateUser , upload.fields([{ name: 'file', max
             return res.status(400).json({ message: 'Book file and cover image are required' });
         }
 
-        const { url: fileUrl } = await uploadOnCloudinary(file.path);
+        const { secure_url: fileUrl } = await uploadOnCloudinary(file.path);
         const { url: coverUrl } = await uploadOnCloudinary(coverImage.path);
 
         const book = new Book({

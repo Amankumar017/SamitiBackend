@@ -6,7 +6,7 @@ const sharp = require('sharp');
 const path = require('path');
 const authenticateUser = require('../middleware/authenticateUser');
 const { uploadOnCloudinary } = require('../cloudinary');
-const https = require('http');
+const https = require('https');
 Router.use(express.urlencoded({ extended: false }));
 
 
