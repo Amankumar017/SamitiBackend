@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 const authenticateUser = require('../middleware/authenticateUser');
 const multer = require('multer');
 const path = require('path');
-
+const { uploadOnCloudinary } = require('../cloudinary');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
@@ -88,8 +88,12 @@ Router.patch('/update-profile-pic',authenticateUser, upload.single('profilePic')
         // console.log('req.file',req.file);
         // console.log('image', req.file.path);
         const imageUrl=req.file.path;
-        const imageUrlFormatted = imageUrl.replace(/\\/g, '/');
-        const updateUser = await User.findByIdAndUpdate(authorId, { image: imageUrlFormatted},  { new: true });
+        console.log({imageUrl});
+        const updatedImage = await uploadOnCloudinary(imageUrl);
+        if (!updatedImage) {
+            throw new ApiError(400, "updatedImage file is required")
+        }    
+        const updateUser = await User.findByIdAndUpdate(authorId, { image:updatedImage.url},  { new: true });
         res.status(200).json(updateUser);
     }
     catch(error){

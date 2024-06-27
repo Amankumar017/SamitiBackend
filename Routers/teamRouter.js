@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const Team = require('../models/teamModel');
 const authenticateUser = require('../middleware/authenticateUser');
+const { uploadOnCloudinary } = require('../cloudinary');
 
 Router.use(express.urlencoded({ extended: false }));
 
@@ -41,18 +42,18 @@ Router.post('/add-member',authenticateUser, upload.single('picture'), async (req
     try {
       const { name, rollNo, passingYear } = req.body;
       // console.log({name,rollNo,passingYear});
+      if (!name || !rollNo || !passingYear) {
+        // Validate name, rollNo, and passingYear
+        return res.status(400).json({ message: 'name, rollNo, and passingYear are required fields' });
+      }
 
       const file = req.file;
   
       if (!file) {
         return res.status(400).json({ message: 'picture file is required' });
       }
-  
-      const picture = file.path; // Uploaded file path
-      if (!name || !rollNo || !passingYear) {
-        // Validate name, rollNo, and passingYear
-        return res.status(400).json({ message: 'name, rollNo, and passingYear are required fields' });
-      }
+
+      const { url:picture }= await uploadOnCloudinary(file.path);
   
       // Check if the member already exists based on rollNo and passingYear
       let existingMember = await Team.findOne({rollNo});

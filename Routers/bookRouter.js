@@ -8,6 +8,7 @@ const path = require('path');
 const https = require('https');
 
 Router.use(express.urlencoded({ extended: false }));
+const { uploadOnCloudinary } = require('../cloudinary');
 
 // Multer storage configuration
 const storage = multer.diskStorage({
@@ -55,6 +56,11 @@ Router.get('/books', async (req, res) => {
 Router.post('/uploadBook', authenticateUser , upload.fields([{ name: 'file', maxCount: 1 }, { name: 'coverImage', maxCount: 1 }]), async (req, res) => {
     try {
         const { name, author } = req.body;
+
+        if (!name || !author) {
+            return res.status(400).json({ message: 'Name and author are required fields' });
+        }
+
         const file = req.files['file'] ? req.files['file'][0] : null;
         const coverImage = req.files['coverImage'] ? req.files['coverImage'][0] : null;
 
@@ -62,12 +68,8 @@ Router.post('/uploadBook', authenticateUser , upload.fields([{ name: 'file', max
             return res.status(400).json({ message: 'Book file and cover image are required' });
         }
 
-        const fileUrl = file.path;
-        const coverUrl = coverImage.path;
-
-        if (!name || !author) {
-            return res.status(400).json({ message: 'Name and author are required fields' });
-        }
+        const { url: fileUrl } = await uploadOnCloudinary(file.path);
+        const { url: coverUrl } = await uploadOnCloudinary(coverImage.path);
 
         const book = new Book({
             name,
@@ -94,7 +96,8 @@ Router.get('/books/:id/download', authenticateUser, async (req, res) => {
         }
   
         // console.log(`Book downloaded: ${book.name} by ${book.author}`);
-        const fileUrl = 'https://samitibackend.onrender.com/' + book.fileUrl.replace(/\\/g, '/');
+        // const fileUrl = 'https://samitibackend.onrender.com/' + book.fileUrl.replace(/\\/g, '/');
+        const fileUrl = book.fileUrl;
         console.log({ fileUrl });
 
         https.get(fileUrl, (response) => {

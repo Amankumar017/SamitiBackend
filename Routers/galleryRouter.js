@@ -2,6 +2,7 @@ const express = require('express');
 const Router = express.Router();
 const Gallery = require('../models/galleryModel');
 const authenticateUser = require('../middleware/authenticateUser');
+const { uploadOnCloudinary } = require('../cloudinary');
 const multer = require('multer');
 const path = require('path');
 
@@ -31,22 +32,50 @@ Router.get('/gallery',async(req,res) => {
 });
 
 // Route to handle gallery uploads
-Router.post('/upload-gallery', authenticateUser,upload.array('images'), async (req, res) => {
-    try {
-      const { event } = req.body;
-      const imageUrls = req.files.map(file => file.path);
-      console.log({imageUrls});
+// Router.post('/upload-gallery', authenticateUser,upload.array('images'), async (req, res) => {
+//     try {
+//       const { event } = req.body;
+//       const imageUrls = req.files.map(file => file.path);
+//       console.log({imageUrls});
 
-      const newEvent = new Gallery({
-        event,
-        images: imageUrls
-      });
+//       const newEvent = new Gallery({
+//         event,
+//         images: imageUrls
+//       });
   
-      await newEvent.save();
-      res.status(201).json(newEvent);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to upload images' });
+//       await newEvent.save();
+//       res.status(201).json(newEvent);
+//     } catch (error) {
+//       res.status(500).json({ error: 'Failed to upload images' });
+//     }
+// });
+
+Router.post('/upload-gallery', authenticateUser, upload.array('images'), async (req, res) => {
+  try {
+    const { event } = req.body;
+    const files = req.files;
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: 'No images provided' });
     }
+
+    const uploadPromises = files.map(file => uploadOnCloudinary(file.path));
+
+    const uploadResponses = await Promise.all(uploadPromises);
+    const imageUrls = uploadResponses.map(response => response.url);
+
+    console.log({ imageUrls });
+
+    const newEvent = new Gallery({
+      event,
+      images: imageUrls
+    });
+
+    await newEvent.save();
+    res.status(201).json(newEvent);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to upload images' });
+  }
 });
   
   module.exports = Router;

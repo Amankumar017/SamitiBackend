@@ -5,6 +5,7 @@ const Trishool = require('../models/trishoolModel');
 const sharp = require('sharp');
 const path = require('path');
 const authenticateUser = require('../middleware/authenticateUser');
+const { uploadOnCloudinary } = require('../cloudinary');
 const https = require('https');
 Router.use(express.urlencoded({ extended: false }));
 
@@ -58,7 +59,7 @@ Router.post('/uploadTrishool',authenticateUser,upload.single('TrishoolFile'), as
             return res.status(400).json({ message: 'Trishool file is required' });
         }
 
-        const fileUrl = file.path; // Uploaded file path
+        const fileUrl = await uploadOnCloudinary(file.path); // Uploaded file path
         if (!title || !content) {
             // Validate title and content
             return res.status(400).json({ message: 'Title and content are required fields' });
@@ -86,7 +87,7 @@ Router.get('/trishools/:id/download', authenticateUser, async (req, res) => {
             return res.status(404).json({ message: 'Book not found' });
         }
 
-        const fileUrl = 'https://samitibackend.onrender.com/' + trishool.fileUrl.replace(/\\/g, '/');
+        const fileUrl = trishool.fileUrl;
         console.log({ fileUrl });
 
         https.get(fileUrl, (response) => {
