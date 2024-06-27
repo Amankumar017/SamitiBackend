@@ -19,7 +19,7 @@ const uploadOnCloudinary = async (localFilePath) => {
         // Upload the file to Cloudinary
         const response = await cloudinary.uploader.upload(localFilePath, {
             resource_type: "auto",
-            folder: hindisamitiuploads
+            folder: 'hindisamitiuploads'
         });
 
         // Remove the locally saved temporary file
