@@ -59,7 +59,7 @@ Router.post('/uploadTrishool',authenticateUser,upload.single('TrishoolFile'), as
             return res.status(400).json({ message: 'Trishool file is required' });
         }
 
-        const fileUrl = await uploadOnCloudinary(file.path); // Uploaded file path
+        const {url:fileUrl} = await uploadOnCloudinary(file.path); // Uploaded file path
         if (!title || !content) {
             // Validate title and content
             return res.status(400).json({ message: 'Title and content are required fields' });
